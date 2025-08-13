@@ -20,4 +20,9 @@
   .nav-rightside-icon{
     display: none;
   }
+  .input-parent{
+    display: flex;
+    flex-direction: column;
+  }
 }
+

@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
 import { chatStore } from "../store/useChatStore";
-import { Image, Send, X } from "lucide-react";
+import { Image, Send, X, Smile } from "lucide-react";
 import toast from "react-hot-toast";
+import EmojiPicker from "emoji-picker-react";
 
 const MessageInput = () => {
   const { sendMessage } = chatStore();
@@ -10,6 +11,7 @@ const MessageInput = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const fileImageRef = useRef(null);
+  const [openEmojiDrwaer, setOpenEmojiDrwaer] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -48,7 +50,7 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 w-full bg-base-200 relative bottom-2" >
+    <div className="p-4 w-full bg-base-200 relative bottom-2">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
@@ -67,9 +69,9 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      <form onSubmit={handleChatSend} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2">
-          <textarea
+      <form onSubmit={handleChatSend} className="flex items-center">
+        <div className="flex-1 flex items-center input-parent">
+          <input
             className="w-full input input-bordered rounded-lg input-sm sm:input-md"
             style={{ fontFamily: "sans-serif", fontSize: "1.1rem" }}
             placeholder="Type your message..."
@@ -83,25 +85,56 @@ const MessageInput = () => {
             ref={fileImageRef}
             onChange={handleImageChange}
           />
-          <button
-            type="button"
-            className={`sm:flex btn btn-circle ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
-            onClick={() => fileImageRef.current?.click()}
-          >
-            <Image size={20} />
-          </button>
+          {openEmojiDrwaer && (
+  <EmojiPicker
+    className="emoji-drawer"
+    onEmojiClick={(emojiObject) => {
+      setText((prev) => prev + emojiObject.emoji);
+    }}
+    style={{
+      position: "absolute",
+      bottom: "60px",
+      left: window.innerWidth < 500 ? "50%" : "10px",
+      transform: window.innerWidth < 500 ? "translateX(-50%)" : "none",
+      zIndex: 1000,
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+      borderRadius: "8px",
+      backgroundColor: "#fff",
+      overflowY: "auto",
+      maxHeight: "60vh",
+      width:"75%"
+    }}
+  />
+)}
+
+
+          <div className="flex items-center">
+            <Smile
+              onClick={() => setOpenEmojiDrwaer((a) => !a)}
+              style={{ cursor: "pointer" }}
+            />
+            <button
+              type="button"
+              className={`sm:flex btn btn-circle ${
+                imagePreview ? "text-emerald-500" : "text-zinc-400"
+              }`}
+              onClick={() => fileImageRef.current?.click()}
+            >
+              <Image size={20} />
+            </button>
+            <button
+              type="submit"
+              className="btn btn-sm btn-circle"
+              disabled={isSending || (!text.trim() && !imageFile)}
+            >
+              {isSending ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : (
+                <Send size={22} />
+              )}
+            </button>
+          </div>
         </div>
-        <button
-          type="submit"
-          className="btn btn-sm btn-circle"
-          disabled={isSending || (!text.trim() && !imageFile)}
-        >
-          {isSending ? (
-            <span className="loading loading-spinner loading-sm"></span>
-          ) : (
-            <Send size={22} />
-          )}
-        </button>
       </form>
     </div>
   );

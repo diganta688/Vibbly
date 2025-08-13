@@ -75,8 +75,8 @@ const Sidebar = () => {
             </div>
 
             <div className="hidden lg:block text-left min-w-0 flex flex-col gap-2 items-start">
-              <div className="font-medium truncate">{user.fullname}</div>
-              <div className="text-[12px] text-zinc-400">
+              <div className="font-medium truncate">{user.username}</div>
+              <div className="text-[12px] text-zinc-400" style={{fontFamily: "sans-serif"}}>
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </div>
             </div>
