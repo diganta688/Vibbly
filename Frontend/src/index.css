@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+
+*{
+    /* overflow: hidden; */
+    font-family: "Playwrite AU QLD", cursive;
+}
+
+.aspect-square{
+  border: 2px solid white;
+}
+
+.nav-icons-main{
+  border-radius: 5px;
+  padding: 3px;
+}
+
+@media(max-width: 400px){
+  .nav-rightside-icon{
+    display: none;
+  }
+}
