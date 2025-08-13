@@ -2,6 +2,13 @@ import cloudinary from "../lib/cloudinary.js";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
+const isProduction = process.env.NODE_ENV === 'production';
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction, 
+  sameSite: isProduction ? 'None' : 'Lax',
+  maxAge: 24 * 60 * 60 * 1000,
+};
 
 export const signup = async (req, res) => {
   const { username, email, password, fullname } = req.body;
@@ -29,7 +36,9 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
     if (newUser) {
-      generateToken(newUser._id, res);
+      const token = generateToken(newUser._id);
+      res.cookie("jwt", token, cookieOptions);
+
       await newUser.save();
       return res
         .status(201)
@@ -81,7 +90,8 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    generateToken(user._id, res);
+    const token = generateToken(user._id, res);
+    res.cookie("jwt", token, cookieOptions);
 
     return res.status(200).json({
       user: {
@@ -100,9 +110,8 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    res.cookie("jwt", "", {
-      maxAge: 0,
-    });
+  res.clearCookie("jwt", cookieOptions);
+
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Error in logout" });

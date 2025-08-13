@@ -5,12 +5,26 @@ const messageRoutes = require('./routes/message.route');
 const connectDB = require('./lib/db');
 const cookieParser = require("cookie-parser");
 const cors = require('cors');
+const session = require("express-session");
 const bodyParser = require('body-parser');
 const {app, server} = require("./lib/socket"); 
 
+const sessionoption = {
+  secret: "secret key",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: Date.now() + 1 * 24 * 60 * 60 * 1000,
+    maxAge: 1 * 24 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === "production" ? true : false,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  },
+};
+app.use(session(sessionoption));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); 
+
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true,
