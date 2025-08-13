@@ -59,7 +59,7 @@ const ChatContainer = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto bg-base-100" style={{ height: "92vh" }}>
+    <div className="flex flex-1 flex-col overflow-auto bg-base-100" >
       <ChatHeader />
       <div className="flex-1 p-4 space-y-4 h-full" style={{ overflowY: "auto" }}>
         {messages.map((message) => {
