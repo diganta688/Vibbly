@@ -1,13 +1,11 @@
 import User from "../models/User.model.js";
 import Message from "../models/Message.model.js";
-import { cloudinary } from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
-
 
 export const getAllUsers = async (req, res) => {
   try {
     const ownId = req.user._id;
-    const users = await User.find({ _id: { $ne: ownId } }).select("-password");
+    const users = await User.find({ _id: { $ne: ownId } }).select("-password").populate("contacts");
     if (users.length === 0) {
       return res.status(404).json({ message: "No users found" });
     }
@@ -43,7 +41,7 @@ export const sendMessage = async (req, res) => {
     const myid = req.user._id;
     console.log(req.file);
     let imgUrl;
-    if (!text&&!req?.file) {
+    if (!text && !req?.file) {
       return res.status(400).json({
         message: "Please send either a text message OR an image, not both",
       });

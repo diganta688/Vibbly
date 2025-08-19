@@ -21,6 +21,8 @@ const MessageInput = () => {
     }
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file)); // preview without base64
+    console.log(imagePreview);
+    
   };
 
   const removeImage = () => {
@@ -86,27 +88,27 @@ const MessageInput = () => {
             onChange={handleImageChange}
           />
           {openEmojiDrwaer && (
-  <EmojiPicker
-    className="emoji-drawer"
-    onEmojiClick={(emojiObject) => {
-      setText((prev) => prev + emojiObject.emoji);
-    }}
-    style={{
-      position: "absolute",
-      bottom: "60px",
-      left: window.innerWidth < 500 ? "50%" : "10px",
-      transform: window.innerWidth < 500 ? "translateX(-50%)" : "none",
-      zIndex: 1000,
-      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-      borderRadius: "8px",
-      backgroundColor: "#fff",
-      overflowY: "auto",
-      maxHeight: "60vh",
-      width:"75%"
-    }}
-  />
-)}
-
+            <EmojiPicker
+              className="emoji-drawer"
+              onEmojiClick={(emojiObject) => {
+                setText((prev) => prev + emojiObject.emoji);
+              }}
+              style={{
+                position: "absolute",
+                bottom: "60px",
+                left: window.innerWidth < 500 ? "50%" : "10px",
+                transform:
+                  window.innerWidth < 500 ? "translateX(-50%)" : "none",
+                zIndex: 1000,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                borderRadius: "8px",
+                backgroundColor: "#fff",
+                overflowY: "auto",
+                maxHeight: "60vh",
+                width: "75%",
+              }}
+            />
+          )}
 
           <div className="flex items-center">
             <Smile

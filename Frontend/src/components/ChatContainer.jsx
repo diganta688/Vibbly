@@ -8,10 +8,17 @@ import { User, X } from "lucide-react";
 
 const ChatContainer = () => {
   const { authUser } = useAuthStore();
-  const { messages, getMessages, isMessageLoading, selectedUser, listenToMessages, unListenToMessages } = chatStore();
+  const {
+    messages,
+    getMessages,
+    isMessageLoading,
+    selectedUser,
+    listenToMessages,
+    unListenToMessages,
+  } = chatStore();
 
   const bottomRef = useRef(null);
-  const [previewImage, setPreviewImage] = useState(null); // For modal image
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     if (selectedUser?._id) {
@@ -61,7 +68,10 @@ const ChatContainer = () => {
   return (
     <div className="flex flex-1 flex-col overflow-auto bg-base-100">
       <ChatHeader />
-      <div className="flex-1 p-4 space-y-4 h-full" style={{ overflowY: "auto" }}>
+      <div
+        className="flex-1 p-4 space-y-4 h-full"
+        style={{ overflowY: "auto" }}
+      >
         {messages.map((message) => {
           const isSender = message.senderId === authUser.user._id;
           return (
@@ -70,16 +80,18 @@ const ChatContainer = () => {
               className={`chat ${isSender ? "chat-end" : "chat-start"}`}
             >
               <div className="chat-image avatar">
-                <div className="w-10 rounded-full">{renderAvatar(isSender)}</div>
+                <div className="w-10 rounded-full">
+                  {renderAvatar(isSender)}
+                </div>
               </div>
-              <div className="chat-bubble max-w-xs p-2 rounded-lg flex flex-col" >
+              <div className="chat-bubble max-w-xs p-2 rounded-lg flex flex-col">
                 {message.image && (
                   <img
                     src={message.image}
                     alt="attachment"
                     className="max-w-[140px] rounded-md mb-2 cursor-pointer"
                     onClick={() => setPreviewImage(message.image)}
-                    style={{height: "10rem"}}
+                    style={{ height: "10rem" }}
                   />
                 )}
                 {message.text && (
@@ -105,8 +117,6 @@ const ChatContainer = () => {
         })}
         <div ref={bottomRef} />
       </div>
-
-      {/* Fullscreen Image Modal */}
       {previewImage && (
         <div
           style={{

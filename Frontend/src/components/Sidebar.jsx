@@ -2,33 +2,66 @@ import { useEffect, useState } from "react";
 import { chatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./Skeletons/SidebarSkeleton";
-import { User, Users } from "lucide-react";
+import { User, Users, UserPlus } from "lucide-react";
+import SearchUser from "./SearchUser";
+import Drawer from "@mui/material/Drawer";
 
 const Sidebar = () => {
+  const [searchUserOpen, setSearchUserOpen] = useState(false);
   const { getUsers, users, selectedUser, setSelectedUser, isUserLoading } =
     chatStore();
 
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers, authUser } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
 
+  // ✅ Only show users who are in authUser.contacts
+  const contactUsers = users.filter((user) =>
+    authUser?.user?.contacts?.some((c) => String(c._id) === String(user._id))
+  );
+
   const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+    ? contactUsers.filter((user) => onlineUsers.includes(user._id))
+    : contactUsers;
+
+  const toggleDrawer = (newOpen) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+    setSearchUserOpen(newOpen);
+  };
 
   if (isUserLoading) return <SidebarSkeleton />;
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
-        <div className="flex items-center gap-2">
-          <Users className="size-6" />
-          <span className="font-medium hidden lg:block">Contacts</span>
+        <div className="flex items-center gap-2 justify-between">
+          <div className="flex">
+            <Users className="size-6 hidden lg:block" />
+            <span className="font-medium hidden lg:block">Contacts</span>
+          </div>
+          <div>
+            <UserPlus
+              onClick={() => setSearchUserOpen((a) => !a)}
+              className="cursor-pointer"
+            />
+            <Drawer
+              anchor="left"
+              open={searchUserOpen}
+              onClose={toggleDrawer(false)}
+            >
+              <SearchUser onClose={toggleDrawer(false)} />
+            </Drawer>
+          </div>
         </div>
-        {/* TODO: Online filter toggle */}
+
         <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
@@ -47,36 +80,32 @@ const Sidebar = () => {
           <button
             key={user._id}
             onClick={() => setSelectedUser(user)}
-            className={`
-              w-full p-3 flex items-center gap-3
-              hover:bg-base-300 transition-colors
-              ${
-                selectedUser?._id === user._id
-                  ? "bg-base-300 ring-1 ring-base-300"
-                  : ""
-              }
-            `}
+            className={`w-full p-3 flex items-center gap-3 hover:bg-base-300 transition-colors ${
+              selectedUser?._id === user._id
+                ? "bg-base-300 ring-1 ring-base-300"
+                : ""
+            }`}
           >
             <div className="relative mx-auto lg:mx-0">
-              {user?.profilePicture !== "" ? (
+              {user?.profilePicture ? (
                 <img
-                  src={user?.profilePicture}
+                  src={user.profilePicture}
                   className="size-12 object-cover rounded-full"
                 />
               ) : (
                 <User className="size-12 object-cover rounded-full border bg-white text-gray-500" />
               )}
               {onlineUsers.includes(user._id) && (
-                <span
-                  className="absolute bottom-0 right-0 size-3 bg-green-500 
-                  rounded-full ring-2 ring-zinc-900"
-                />
+                <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-900" />
               )}
             </div>
 
             <div className="hidden lg:block text-left min-w-0 flex flex-col gap-2 items-start">
               <div className="font-medium truncate">{user.username}</div>
-              <div className="text-[12px] text-zinc-400" style={{fontFamily: "sans-serif"}}>
+              <div
+                className="text-[12px] text-zinc-400"
+                style={{ fontFamily: "sans-serif" }}
+              >
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </div>
             </div>
@@ -84,10 +113,11 @@ const Sidebar = () => {
         ))}
 
         {filteredUsers.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No online users</div>
+          <div className="text-center text-zinc-500 py-4">No contacts found</div>
         )}
       </div>
     </aside>
   );
 };
+
 export default Sidebar;

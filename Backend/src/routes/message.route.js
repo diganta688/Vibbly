@@ -9,5 +9,5 @@ const upload = multer({ storage });
 
 router.get("/users", protectRoute, getAllUsers);
 router.get("/:id", protectRoute, getmessages);
-router.post("/send/:id", protectRoute, upload.single("image"), sendMessage)
-module.exports = router;
+router.post("/send/:id", protectRoute, upload.single("image"), sendMessage);
+module.exports = router;    

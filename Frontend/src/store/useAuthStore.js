@@ -17,9 +17,11 @@ export const useAuthStore = create((set, get) => ({
   checkauth: async () => {
     try {
       const response = await api.get("/auth/check");
-      set({ authUser: response.data });
-      // console.log("User authenticated:", response.data);
-      get().connectSocket();
+      if(response.status){
+        set({ authUser: response.data });
+        // console.log("User authenticated:", response.data);
+        get().connectSocket();
+      }
     } catch (error) {
       console.error("Error checking authentication:", error);
       set({ authUser: null });
@@ -28,6 +30,17 @@ export const useAuthStore = create((set, get) => ({
     }
   },
   setAuthUser: (user) => set({ authUser: user }),
+
+  addContact: (userId) =>
+    set((state) => ({
+      authUser: {
+        ...state.authUser,
+        user: {
+          ...state.authUser.user,
+          contacts: [...new Set([...state.authUser.user.contacts, userId])],
+        },
+      },
+    })),
 
   signup: async (data) => {
     set({ isSignup: true });

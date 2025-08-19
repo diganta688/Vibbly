@@ -30,7 +30,6 @@ export const chatStore = create((set, get) => ({
       const res = await api.get(`/message/${userId}`);
       set({ messages: res.data });
       console.log(get().messages);
-      
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {

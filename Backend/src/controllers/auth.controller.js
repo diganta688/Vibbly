@@ -1,12 +1,11 @@
-import cloudinary from "../lib/cloudinary.js";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 const cookieOptions = {
   httpOnly: true,
-  secure: isProduction, 
-  sameSite: isProduction ? 'None' : 'Lax',
+  secure: isProduction,
+  sameSite: isProduction ? "None" : "Lax",
   maxAge: 24 * 60 * 60 * 1000,
 };
 
@@ -110,7 +109,7 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-  res.clearCookie("jwt", cookieOptions);
+    res.clearCookie("jwt", cookieOptions);
 
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
@@ -160,5 +159,62 @@ export const checkAuth = (req, res) => {
     res.status(200).json({ user: req.user, message: "User is authenticated" });
   } catch (error) {
     return res.status(500).json({ message: "Error checking authentication" });
+  }
+};
+
+export const findUser = async (req, res) => {
+  try {
+    const { query } = req.body;
+    const currentUserId = req.user._id;
+    let users;
+    if (!query || query.trim() === "") {
+      return res.json([]);
+    } else {
+      const regex = new RegExp(query, "i");
+      users = await User.find(
+        {
+          _id: { $ne: currentUserId },
+          $or: [{ username: regex }],
+        },
+        "username name email profilePicture"
+      ).limit(50).populate("contacts");
+    }
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const addUserInContact = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const receiverId = req.user._id;
+
+    if (receiverId.toString() === id.toString()) {
+      return res.status(400).json({ message: "You cannot add yourself" });
+    }
+
+    const user = await User.findById(id);
+    const receiver = await User.findById(receiverId);
+
+    if (!user || !receiver) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check duplicates before adding
+    if (user.contacts.includes(receiverId) || receiver.contacts.includes(id)) {
+      return res.status(409).json({ message: "User already in contacts" }); // 409 = conflict
+    }
+
+    user.contacts.push(receiverId);
+    receiver.contacts.push(id);
+
+    await user.save();
+    await receiver.save();
+
+    res.status(200).json({ message: `${user.username} is now connected with you` });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
