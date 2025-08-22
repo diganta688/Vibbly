@@ -2,19 +2,6 @@ import User from "../models/User.model.js";
 import Message from "../models/Message.model.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 
-export const getAllUsers = async (req, res) => {
-  try {
-    const ownId = req.user._id;
-    const users = await User.find({ _id: { $ne: ownId } }).select("-password").populate("contacts");
-    if (users.length === 0) {
-      return res.status(404).json({ message: "No users found" });
-    }
-    return res.status(200).json(users);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
 
 export const getmessages = async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { chatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./Skeletons/SidebarSkeleton";
@@ -10,14 +10,10 @@ const Sidebar = () => {
   const [searchUserOpen, setSearchUserOpen] = useState(false);
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
-  const { getUsers, users, selectedUser, setSelectedUser, isUserLoading } = chatStore();
-  const { onlineUsers, authUser } = useAuthStore();
+  const {  selectedUser, setSelectedUser, isUserLoading } = chatStore();
+  const { onlineUsers, authUser, checkauth } = useAuthStore();
 
   // ✅ Filter out yourself (so you don’t see your own profile in list)
-  const allOtherUsers = useMemo(() => {
-    if (!authUser?.user?._id) return users;
-    return users.filter((u) => u._id !== authUser.user._id);
-  }, [users, authUser]);
   const contactUsers=authUser&&authUser?.user?.contacts;
 
 
@@ -27,11 +23,6 @@ const Sidebar = () => {
       ? contactUsers.filter((u) => onlineUsers.includes(u._id))
       : contactUsers;
   }, [contactUsers, showOnlineOnly, onlineUsers]);
-
-  // ✅ Fetch users on mount
-  useEffect(() => {
-    getUsers();
-  }, [getUsers]);
 
   const toggleDrawer = (newOpen) => (event) => {
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
@@ -52,7 +43,7 @@ const Sidebar = () => {
             <span className="font-medium hidden lg:block">Contacts</span>
             {/* 🔄 Refresh Button */}
             <RefreshCw
-              onClick={getUsers}
+              onClick={()=>checkauth()}
               className="cursor-pointer hover:text-blue-500"
             />
           </div>

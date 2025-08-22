@@ -10,25 +10,6 @@ export const chatStore = create((set, get) => ({
   isUserLoading: false,
   isMessageLoading: false,
 
-getUsers: async () => {
-  set({ isUserLoading: true });
-  try {
-    const res = await api.get("/message/users");
-    set({ users: res.data }); // ✅ all users
-    const usersdata= get().users;
-    console.log('usersData',usersdata)
-
-    console.log('fullname',usersdata.map((el)=>console.log(el)))
-
-    
-    
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Failed to load users");
-  } finally {
-    set({ isUserLoading: false });
-  }
-},
-
   getMessages: async (userId) => {
     set({ isMessageLoading: true });
     try {
