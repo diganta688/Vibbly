@@ -78,7 +78,7 @@ export const login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ $or: conditions });
+    const user = await User.findOne({ $or: conditions }).populate('contacts');
 
     if (!user) {
       return res.status(400).json({ message: "User does not exist" });
@@ -92,14 +92,7 @@ export const login = async (req, res) => {
     const token = generateToken(user._id, res);
     res.cookie("jwt", token, cookieOptions);
 
-    return res.status(200).json({
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        fullname: user.fullname,
-      },
-      message: "Welcome back!",
+    return res.status(200).json({user,message: "Welcome back!",
     });
   } catch (error) {
     console.error("Login error:", error);

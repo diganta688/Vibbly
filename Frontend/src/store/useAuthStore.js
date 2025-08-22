@@ -14,12 +14,14 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers:[],
   socket:null,
+  counter:true,
+  toggleCounter: () => set((state) => ({ counter: !state.counter })),
   checkauth: async () => {
     try {
       const response = await api.get("/auth/check");
       if(response.status){
         set({ authUser: response.data });
-        // console.log("User authenticated:", response.data);
+
         get().connectSocket();
       }
     } catch (error) {
